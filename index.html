@@ -608,6 +608,32 @@
         if (playback && playback.catch) playback.catch(function () { /* Native controls remain ready for a tap. */ });
       }
 
+
+      // Generate thumbnails from video frames
+      localButtons.forEach(function (button) {
+        var src = button.getAttribute('data-src');
+        var tmp = document.createElement('video');
+        tmp.muted = true;
+        tmp.playsInline = true;
+        tmp.preload = 'auto';
+        tmp.src = src;
+        tmp.addEventListener('loadeddata', function () {
+          try { tmp.currentTime = 0.8; } catch (e) {}
+        });
+        tmp.addEventListener('seeked', function () {
+          try {
+            var c = document.createElement('canvas');
+            c.width = tmp.videoWidth || 320;
+            c.height = tmp.videoHeight || 568;
+            c.getContext('2d').drawImage(tmp, 0, 0, c.width, c.height);
+            button.style.backgroundImage = 'url(' + c.toDataURL('image/jpeg', 0.7) + ')';
+            button.style.backgroundSize = 'cover';
+            button.style.backgroundPosition = 'center';
+          } catch (e) {}
+          tmp.src = '';
+        });
+      });
+
       localButtons.forEach(function (button) {
         var source = button.getAttribute('data-src');
 
